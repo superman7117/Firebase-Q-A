@@ -19,7 +19,8 @@ function createProduct(e){
     itemName: itemName,
     description: description,
     imgUrl: imgUrl,
-    timeStart: timeStart
+    timeStart: timeStart,
+    comments: ''
   })
 // $('#formFill')[0].reset();
 }
@@ -57,9 +58,8 @@ $('body').on('click', '.comSubmit', applyComment);
 function applyComment(){
   var comment = $('.comment').val();
   var commentTime = moment().format('LLLL');
-  console.log(theKey);
   var childRef = ref.child(theKey)
-  console.log(childRef);
+  console.log(childRef.comments)
   childRef.push({
     comments: {
       comment: comment,
@@ -72,12 +72,15 @@ ref.on('value',function(snap){
   var data = snap.val();
   var key = snap.key();
   var arrayComments = [];
-  var forE = data.forEach(function(childData){
-    if (childData.length === 20){
-      console.log(childData.comments)
-    }
-  })
-  console.log(data);
+  // var forE = snap.forEach(function(childData){
+  //   var forEE = snap.forEach(function(childchildData){
+  //   var forEE = snap.forEach(function(childchildchildData){
+  //     console.log(childchildchildData)
+  //   })
+  //   })
+  //
+  // })
+  console.log(key.a);
   var commentDiv = $('<div>').addClass('commentDiv').attr('data-key',key);
   var commentTitle = $('<h3>').addClass('commentTitle').append(data.comment);
   var commentT = $('<div>').addClass('commentT').append(data.commentTime);
@@ -85,6 +88,11 @@ ref.on('value',function(snap){
   $('#thingsPlace').append(arrayComments);
 })
 
-
+// if (childData.length === 20){
+// console.log(childData)
+// if (childData.length === 20){
+//   console.log(childData.comments)
+// }
+// }
 
 })

@@ -1,5 +1,6 @@
 'use strict'
 var ref = new Firebase('https://ozannetest.firebaseio.com/');
+var theKey;
 $(document).ready(function(){
 
 $('#submit').on('click', createProduct)
@@ -25,24 +26,64 @@ function createProduct(e){
 
 ref.on('child_added',function(snap){
   var data = snap.val();
-  var key = snapshot.key();
+  var key = snap.key();
   var arrayItems = [];
   var outer = $('<div>').addClass('outer').attr('data-key',key)
-  var itemTitle = $('<h1>').addClass('itemTitle').append(data.itemName)
-  if (data.imgURL !== '' ){
+  var itemTitle = $('<h3>').addClass('itemTitle').append(data.itemName)
+  if (data.imgUrl !== '' ){
     var picUrl = $('<div>').addClass('picUrl').css({'background-image': 'url('+data.imgUrl+')', 'background-position': 'center', 'background-size': 'cover'})
   }
   else{
     var picUrl = $('<div>').addClass('picUrl').css({'background-image': 'url("http://pngimg.com/upload/juice_PNG7182.png")', 'background-position': 'center', 'background-size': 'cover'})
   }
-  var time = $('<h3>').addClass('time').append(data.timeStart);
+  var time = $('<div>').addClass('time').append(data.timeStart);
   var descript = $('<div>').addClass('discript').append(data.description);
-  arrayItems.push(outer.append(itemTitle).append(picUrl).append(time).append(descript));
-  $('thingsPlace')
+  var comEdit = $('<button>').addClass('comEdit').text('Edit or Comment');
+  arrayItems.push(outer.append(itemTitle).append(picUrl).append(time).append(descript).append(comEdit));
+  $('#thingsPlace').append(arrayItems);
 })
 //on children change
+$('#thingsPlace').on('click', '.comEdit', commentOrEdit)
 
+function commentOrEdit(){
+  theKey = $(this).closest('.outer').attr('data-key')
+  $('<div>').addClass('comEditForm').appendTo('body');
+  $('<div>').addClass('explination').text('Comment below and hit submit to continue.').appendTo('.comEditForm');
+  $('<textarea>').addClass('comment').appendTo('.comEditForm');
+  $('<button>').addClass('comSubmit').text('Submit Your Comment').appendTo('.comEditForm');
+}
+$('body').on('click', '.comSubmit', applyComment);
 
+function applyComment(){
+  var comment = $('.comment').val();
+  var commentTime = moment().format('LLLL');
+  console.log(theKey);
+  var childRef = ref.child(theKey)
+  console.log(childRef);
+  childRef.push({
+    comments: {
+      comment: comment,
+      commentTime: commentTime
+    }
+  })
+$(".comEditForm").remove();
+}
+ref.on('value',function(snap){
+  var data = snap.val();
+  var key = snap.key();
+  var arrayComments = [];
+  var forE = data.forEach(function(childData){
+    if (childData.length === 20){
+      console.log(childData.comments)
+    }
+  })
+  console.log(data);
+  var commentDiv = $('<div>').addClass('commentDiv').attr('data-key',key);
+  var commentTitle = $('<h3>').addClass('commentTitle').append(data.comment);
+  var commentT = $('<div>').addClass('commentT').append(data.commentTime);
+  arrayComments.push(commentDiv.append(commentTitle).append(commentT));
+  $('#thingsPlace').append(arrayComments);
+})
 
 
 
